@@ -2270,8 +2270,10 @@ class Config(View):
         MTTR = units[0].MTTR
         average_speed = units[0].average_speed
         chk_average_speed = units[0].chk_average_speed
+        criteria_delay = units[0].criteria_delay
         id = units[0].id
-        return render(request, self.template_name,{'MTBFMTBSAF':MTBFMTBSAF,'MTTR':MTTR,'id':id,'average_speed':average_speed,'chk_average_speed':chk_average_speed})
+        print(criteria_delay)
+        return render(request, self.template_name,{'MTBFMTBSAF':MTBFMTBSAF,'MTTR':MTTR,'id':id,'average_speed':average_speed,'chk_average_speed':chk_average_speed,'criteria_delay':criteria_delay})
     
     def post(self, request, *args, **kwargs):
         user_Role = request.session.get('user_Role')
@@ -2290,8 +2292,9 @@ class Config(View):
 
         average_speed  = req.get('average_speed')
         chk_average_speed  = req.get('chk_average_speed')
+        criteria_delay  = req.get('criteria_delay')
 
-        PBSUnit.objects.filter(id=id).update(MTBFMTBSAF=MTBFMTBSAF,MTTR=MTTR,average_speed=average_speed,chk_average_speed=chk_average_speed)
+        PBSUnit.objects.filter(id=id).update(MTBFMTBSAF=MTBFMTBSAF,MTTR=MTTR,average_speed=average_speed,chk_average_speed=chk_average_speed,criteria_delay=criteria_delay)
         if meg != '':
             P_id = request.session['P_id']
             user_ID = request.session['user_ID']

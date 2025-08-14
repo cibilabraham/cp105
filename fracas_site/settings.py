@@ -103,9 +103,9 @@ WSGI_APPLICATION = 'fracas_site.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'cp_105',
+        'NAME': 'cp_105_db',
         'USER': 'postgres',
-        'PASSWORD': 'P@$$me2022',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
         'PORT': '5432',
     }

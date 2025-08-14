@@ -18,7 +18,7 @@
               <div class="row mb-5">
                 <div class="col-lg-12">
                     <h3 class="page-header">
-                        Actual MTBF vs Time
+                        Actual MTBSAF vs Time
                     </h3>
                     <!--ol class="breadcrumb">
                         <li>
@@ -127,7 +127,7 @@
             <div class="card mb-4">
                 <div class="card-header d-none">
                     <i class="fas fa-chart-area mr-1"></i>
-                    Cumulative MTBF of selected subsystem vs Time
+                    Cumulative MTBSAF of selected subsystem vs Time
                 </div>
                 <h1 class="nodata" style="margin-top: 20px;text-align: center;">No data available please search</h1>
                 <div class="card-body" id="canvasDiv">
@@ -285,7 +285,7 @@
     var y = 25;
     
     pdf.setFontSize(18);
-    pdf.text(pdfWidth / 3, y, 'Actual MTBF vs Time');
+    pdf.text(pdfWidth / 3, y, 'Actual MTBSAF vs Time');
     y = y + 10;
     
     pdf.setFontSize(10);
@@ -341,7 +341,7 @@ html2canvas(tableElement, {
     if (PrintOption == 1) {
         window.open(pdf.output('bloburl'), '_blank');
     } else {
-        pdf.save("Actual MTBF.pdf");
+        pdf.save("Actual MTBSAF.pdf");
     }
 });
 }
@@ -536,7 +536,7 @@ html2canvas(tableElement, {
             data:    {
                 datasets: [
                 {
-                    label: "MTBF Target",
+                    label: "MTBSAF Target",
                     data: chartData.data1,
                     fill: false,
                     borderColor: '#0099cc',
@@ -550,7 +550,7 @@ html2canvas(tableElement, {
                     pointStyle : 'dash'
                 },
                 {
-                    label: "Cum MTBF",
+                    label: "Cum MTBSAF",
                     data: chartData.data,
                     borderColor: '#cc0000',
                     borderWidth: 2,
@@ -568,7 +568,7 @@ html2canvas(tableElement, {
                 responsive: true,
                 title:      {
                     display: true,
-                    text:    "Cumulative MTBF of "+subsystem+" vs Time",
+                    text:    "Cumulative MTBSAF of "+subsystem+" vs Time",
                     fontSize: 18,
                 },
                 legend: {
@@ -623,9 +623,9 @@ html2canvas(tableElement, {
     var dateHeader = document.createElement("th");
     dateHeader.textContent = "Date";
     var cumMTBFHeader = document.createElement("th");
-    cumMTBFHeader.textContent = "Cumulative MTBF";
+    cumMTBFHeader.textContent = "Cumulative MTBSAF";
     var mtbfTargetHeader = document.createElement("th");
-    mtbfTargetHeader.textContent = "MTBF Target";
+    mtbfTargetHeader.textContent = "MTBSAF Target";
 
     // Append header cells to the header row
     headerRow.appendChild(dateHeader);

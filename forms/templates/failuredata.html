@@ -145,6 +145,24 @@
                         </select>
                     </div>
                 </div>
+
+
+                <div class="col-md-3">     
+                    <div class="form-group">
+                        <label for="service_affecting_failure">Service Affecting Failure:</label>
+                        <select class="form-control" id="service_affecting_failure" name="service_affecting_failure" required="required">
+                            <option value="all">--All--</option>
+                            <option value="Yes">Yes</option>
+                            
+                            <option value="No">No</option>
+                           
+                        </select>
+                        {% comment %} <input type="text" class="form-control" id="service_affecting_failure" name="service_affecting_failure" value="{{data.service_affecting_failure}}"> {% endcomment %}
+                        <div class="invalid-feedback">
+                         Please enter Service Affecting Failure.
+                        </div>
+                    </div>
+                </div>
                 
                
                 <div class="col-md-3 pt-4">     
@@ -169,6 +187,7 @@
                             <th>Time</th>
                             <th>Detection</th>
                             <th>Service delay (mins)</th>
+                            <th>Service Affecting Failure</th>
                             <th>Immediate investigation</th>
                             <th>Failure type</th>
                             <th>Safety failure</th>
@@ -181,6 +200,7 @@
                             <th>Cm end time</th>
                             <th>Oem failure reference</th>
                             <th>defect</th>
+                            <th>Relevant Failure (safety impact)</th>
                             <th class="bg-white"></th>
                         </tr>
                     </thead>
@@ -307,6 +327,9 @@
         var failure_type= $('select[name=failure_type] option').filter(':selected').val()
         var safety_failure= $('select[name=safety_failure] option').filter(':selected').val()
         var mode_id= $('select[name=mode_id] option').filter(':selected').val()
+        var service_affecting_failure= $('select[name=service_affecting_failure] option').filter(':selected').val()
+
+        
 
             $('#example').DataTable().destroy();
             $('#example').DataTable({
@@ -336,6 +359,7 @@
                             'failure_type':failure_type,
                             'safety_failure' : safety_failure,
                             'mode_id': mode_id,
+                            'service_affecting_failure':service_affecting_failure,
                         }
                     },
                     "columns" : [
@@ -366,6 +390,7 @@
                         {"data" : "time"},
                         {"data" : "detection"},
                         {"data" : "service_delay"},
+                        {"data" : "service_affecting_failure"},
                         {"data" : "immediate_investigation"},
                         {"data" : "failure_type"},
                         {"data" : "safety_failure"},
@@ -396,6 +421,7 @@
                         {"data" : "cm_end_time"},
                         {"data" : "oem_failure_reference"},
                         {"data" : "defect"},
+                        {"data" : "relevant_failure"},
                         {"data":null,"render":function(item){
                             if(item.user_Role != 4 ) return '<input type="button" value="delete" class="btn btn-danger" onClick="return deleteFailure('+ item.id +')">';
                             else return '';

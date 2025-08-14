@@ -79,6 +79,10 @@ class FailureData(models.Model):
     P_id = models.IntegerField(default=0)
     is_active = models.IntegerField(default=0)
     # root_cause = models.ForeignKey('RootCause', on_delete=models.SET_NULL, null=True, blank=True)
+    service_affecting_failure = models.CharField(max_length=600  , default='No', choices=failureTypeChoices)
+    relevant_failure = models.TextField(null=True, blank=True)
+
+
     def __str__(self):
         return ' '
 
@@ -399,6 +403,7 @@ class PBSUnit(models.Model):
     MTTR = models.TextField()
     average_speed = models.FloatField(default=0)
     chk_average_speed = models.FloatField(default=0)
+    criteria_delay = models.FloatField(default=0)
 
 class Systems(models.Model):
     project = models.ForeignKey('Product', on_delete=models.CASCADE,null=True, blank=True)

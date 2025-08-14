@@ -321,6 +321,7 @@ class Failuredata(View):
         asset_type = req.get('asset_type')
         failure_type = req.get('failure_type')
         safety_failure = req.get('safety_failure')
+        service_affecting_failure = req.get('service_affecting_failure')
         mode_id = req.get('mode_id')
         if user_Role == 1:
             FailureData_data =FailureData.objects.filter(is_active=0)
@@ -338,6 +339,8 @@ class Failuredata(View):
             FailureData_data=FailureData_data.filter(safety_failure=safety_failure)
         if mode_id != "all":
             FailureData_data=FailureData_data.filter(mode_id=mode_id)
+        if service_affecting_failure != "all":
+            FailureData_data=FailureData_data.filter(service_affecting_failure=service_affecting_failure)
     
         # Asset_data = Asset.objects.all()
         for FailureDatas in FailureData_data:
@@ -372,6 +375,8 @@ class Failuredata(View):
                                 'defect' : FailureDatas.defect_id,
                                 'id':FailureDatas.id,
                                 'user_Role':user_Role,
+                                'service_affecting_failure':FailureDatas.service_affecting_failure,
+                                'relevant_failure':FailureDatas.relevant_failure,
                             })  
                     else:
                         data.append({ 
@@ -399,6 +404,8 @@ class Failuredata(View):
                             'defect' : FailureDatas.defect_id,
                             'id':FailureDatas.id,
                             'user_Role':user_Role,
+                            'service_affecting_failure':FailureDatas.service_affecting_failure,
+                            'relevant_failure':FailureDatas.relevant_failure,
                         })         
         return JsonResponse({'data':data})
     
@@ -458,6 +465,11 @@ class AddFailureData(View):
         if user_Role == 4:
             return redirect('/dashboard/')
         id = kwargs.get("id")
+
+        units = PBSUnit.objects.all()
+        criteria_delay = units[0].criteria_delay
+
+
         data=[]
         if id==None:
             data={ 
@@ -484,6 +496,8 @@ class AddFailureData(View):
             'cm_end_time' : '',
             'oem_failure_reference' : '',
             'defect':'',
+            'service_affecting_failure':'No',
+            'relevant_failure':'',
             }
         else:
             FailureDatas=FailureData.objects.filter(id=id)
@@ -512,6 +526,8 @@ class AddFailureData(View):
                 'cm_end_time' : datas.cm_end_time,
                 'oem_failure_reference' : datas.oem_failure_reference,
                 'defect':datas.defect,
+                'service_affecting_failure':datas.service_affecting_failure,
+                'relevant_failure':datas.relevant_failure,
                 }
             #print(data)
         if user_Role == 1:
@@ -525,7 +541,7 @@ class AddFailureData(View):
             mode_id = FailureMode.objects.filter(is_active=0,P_id=P_id).distinct('mode_id')
             defect = Defect.objects.filter(is_active=0,P_id=P_id).distinct('defect_id')
         return render(request, self.template_name,{'data':data,'defect':defect,'asset_type':asset_types
-                                                   ,'asset_config_id':asset_config_id,'mode_id':mode_id})
+                                                   ,'asset_config_id':asset_config_id,'mode_id':mode_id,'criteria_delay':criteria_delay})
 
     def post(self, request, *args, **kwargs):
         P_id = request.session['P_id']
@@ -568,8 +584,11 @@ class AddFailureData(View):
         ACID = Asset.objects.filter(id=asset_config_ids)
         asset_config_id = ACID[0].asset_config_id
 
+        relevant_failure = req.get('relevant_failure')
+        service_affecting_failure = req.get('service_affecting_failure')
+
         DATA = []
-        HEAD = ["asset_type",'failure_id','asset_config_id_id','event_description','mode_id_id','date','time','detection','service_delay','immediate_investigation','failure_type','safety_failure','hazard_id','cm_description','replaced_asset_config_id','cm_start_date','cm_start_time','cm_end_date','cm_end_time','oem_failure_reference','defect_id']
+        HEAD = ["asset_type",'failure_id','asset_config_id_id','event_description','mode_id_id','date','time','detection','service_delay','immediate_investigation','failure_type','safety_failure','hazard_id','cm_description','replaced_asset_config_id','cm_start_date','cm_start_time','cm_end_date','cm_end_time','oem_failure_reference','defect_id','relevant_failure','service_affecting_failure']
         for f in HEAD:
             if f == 'asset_config_id_id':
                 DATA.append({
@@ -619,7 +638,7 @@ class AddFailureData(View):
             else:
                 Find_Pids =PBSMaster.objects.filter(id=asset_type)
                 for Find_Pid in Find_Pids:
-                    r=FailureData(P_id=Find_Pid.project_id,asset_config_id_id=asset_config_id,mode_id_id=mode_id,defect_id=defect,asset_type=asset_type,failure_id=failure_id,event_description=event_description,date=date,time=time,detection=detection,service_delay=service_delay,immediate_investigation=immediate_investigation,failure_type=failure_type,safety_failure=safety_failure,hazard_id=hazard_id,cm_description=cm_description,replaced_asset_config_id=replaced_asset_config_id,cm_start_date=cm_start_date,cm_start_time=cm_start_time,cm_end_date=cm_end_date,cm_end_time=cm_end_time,oem_failure_reference=oem_failure_reference)
+                    r=FailureData(P_id=Find_Pid.project_id,asset_config_id_id=asset_config_id,mode_id_id=mode_id,defect_id=defect,asset_type=asset_type,failure_id=failure_id,event_description=event_description,date=date,time=time,detection=detection,service_delay=service_delay,immediate_investigation=immediate_investigation,failure_type=failure_type,safety_failure=safety_failure,hazard_id=hazard_id,cm_description=cm_description,replaced_asset_config_id=replaced_asset_config_id,cm_start_date=cm_start_date,cm_start_time=cm_start_time,cm_end_date=cm_end_date,cm_end_time=cm_end_time,oem_failure_reference=oem_failure_reference,relevant_failure=relevant_failure,service_affecting_failure=service_affecting_failure)
                     r.save()
                     FindUser = UserProfile.objects.filter(user_id=user_ID)
                     now = datetime.datetime.now()
@@ -659,7 +678,7 @@ class AddFailureData(View):
                 if FailureData.objects.filter(failure_id=failure_id,id=ids,is_active=0).exists():
                     Find_Pids =PBSMaster.objects.filter(id=asset_type)
                     for Find_Pid in Find_Pids:
-                        FailureData.objects.filter(id=ids).update(P_id=Find_Pid.project_id,asset_config_id_id=asset_config_id,mode_id_id=mode_id,defect_id=defect,asset_type=asset_type,event_description=event_description,date=date,time=time,detection=detection,service_delay=service_delay,immediate_investigation=immediate_investigation,failure_type=failure_type,safety_failure=safety_failure,hazard_id=hazard_id,cm_description=cm_description,replaced_asset_config_id=replaced_asset_config_id,cm_start_date=cm_start_date,cm_start_time=cm_start_time,cm_end_date=cm_end_date,cm_end_time=cm_end_time,oem_failure_reference=oem_failure_reference)
+                        FailureData.objects.filter(id=ids).update(P_id=Find_Pid.project_id,asset_config_id_id=asset_config_id,mode_id_id=mode_id,defect_id=defect,asset_type=asset_type,event_description=event_description,date=date,time=time,detection=detection,service_delay=service_delay,immediate_investigation=immediate_investigation,failure_type=failure_type,safety_failure=safety_failure,hazard_id=hazard_id,cm_description=cm_description,replaced_asset_config_id=replaced_asset_config_id,cm_start_date=cm_start_date,cm_start_time=cm_start_time,cm_end_date=cm_end_date,cm_end_time=cm_end_time,oem_failure_reference=oem_failure_reference,relevant_failure=relevant_failure,service_affecting_failure=service_affecting_failure)
                         if meg !='':
                             FindUser = UserProfile.objects.filter(user_id=user_ID)
                             now = datetime.datetime.now()
@@ -674,7 +693,7 @@ class AddFailureData(View):
                 print('---------------2222222222222-----------')
                 Find_Pids =PBSMaster.objects.filter(id=asset_type)
                 for Find_Pid in Find_Pids:
-                    FailureData.objects.filter(id=ids).update(P_id=Find_Pid.project_id,asset_config_id_id=asset_config_id,mode_id_id=mode_id,defect_id=defect,asset_type=asset_type,failure_id=failure_id,event_description=event_description,date=date,time=time,detection=detection,service_delay=service_delay,immediate_investigation=immediate_investigation,failure_type=failure_type,safety_failure=safety_failure,hazard_id=hazard_id,cm_description=cm_description,replaced_asset_config_id=replaced_asset_config_id,cm_start_date=cm_start_date,cm_start_time=cm_start_time,cm_end_date=cm_end_date,cm_end_time=cm_end_time,oem_failure_reference=oem_failure_reference)
+                    FailureData.objects.filter(id=ids).update(P_id=Find_Pid.project_id,asset_config_id_id=asset_config_id,mode_id_id=mode_id,defect_id=defect,asset_type=asset_type,failure_id=failure_id,event_description=event_description,date=date,time=time,detection=detection,service_delay=service_delay,immediate_investigation=immediate_investigation,failure_type=failure_type,safety_failure=safety_failure,hazard_id=hazard_id,cm_description=cm_description,replaced_asset_config_id=replaced_asset_config_id,cm_start_date=cm_start_date,cm_start_time=cm_start_time,cm_end_date=cm_end_date,cm_end_time=cm_end_time,oem_failure_reference=oem_failure_reference,relevant_failure=relevant_failure,service_affecting_failure=service_affecting_failure)
                     if meg !='':
                         FindUser = UserProfile.objects.filter(user_id=user_ID)
                         now = datetime.datetime.now()

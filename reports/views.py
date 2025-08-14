@@ -620,17 +620,17 @@ class MTBFvsTimeReportView(View):
                 Asset_data=Asset_data.filter(asset_type__in=a) 
                 pbs_master_data = pbs_master_data.filter(id__in=a)
         if FN_NAME == 'two':
-            pbs_mtbf_value = pbs_master_data[0].MTBF
+            pbs_mtbf_value = pbs_master_data[0].MTBSAF
         elif FN_NAME == 'three':
             if Systems.objects.filter(project_id=project,System=system,is_active=0).exists():
                 D_MTBF = Systems.objects.filter(project_id=project,System=system,is_active=0) 
-                pbs_mtbf_value = D_MTBF[0].MTBF
+                pbs_mtbf_value = D_MTBF[0].MTBSAF
             else:
                 response = {'status':'2','data' : data, 'data1' : data1, 'scale':scale}
                 return JsonResponse(response)
         else:
             D_MTBF = Product.objects.filter(product_id=project) 
-            pbs_mtbf_value = D_MTBF[0].MTBF
+            pbs_mtbf_value = D_MTBF[0].MTBSAF
         # for pbs in pbs_master_data:
         #     pbs_mtbf_value = pbs.MTBF
         
@@ -726,9 +726,11 @@ class MTBFvsTimeReportView(View):
               
                 failure_count = 0
                 if lru_type and lru_type!="all":
-                    failure_count = FailureData.objects.filter(asset_config_id__asset_type=lru_type, date__range=[week_start_date,week_end_date],is_active=0).exclude(failure_type='Other').count()
+                    failure_count = FailureData.objects.filter(asset_config_id__asset_type=lru_type, date__range=[week_start_date,week_end_date],is_active=0,service_affecting_failure='Yes').exclude(failure_type='Other').count()
                 else:
-                    failure_count = FailureData.objects.filter(asset_config_id__asset_type__in=asset_types, date__range=[week_start_date,week_end_date],is_active=0).exclude(failure_type='Other').count()
+                    failure_count = FailureData.objects.filter(asset_config_id__asset_type__in=asset_types, date__range=[week_start_date,week_end_date],is_active=0,service_affecting_failure='Yes').exclude(failure_type='Other').count()
+
+                print(failure_count)
                 
                 if failure_count != 0:
                     cum_actual_failure_count = cum_actual_failure_count+failure_count
@@ -738,11 +740,13 @@ class MTBFvsTimeReportView(View):
                 # print(week_start_date,'week_start_date')
                 week_end_date1 = datetime.datetime.strptime(str(week_end_date), '%Y-%m-%d %H:%M:%S').strftime('%Y-%m-%d')
                 # print(Hightest_date_of_failure,'Hightest_date_of_failure')
-                print(f"{week_start_date} - fc: {failure_count} - cfc: {cum_actual_failure_count} - coh: {lru_population_hours} - MTBF: {actual_mtbf_value}")
+                print(f"{week_start_date} - fc: {failure_count} - cfc: {cum_actual_failure_count} - coh: {lru_population_hours} - MTBSAF: {actual_mtbf_value}")
 
                 findUnit = PBSUnit.objects.filter()
-                if findUnit[0].chk_average_speed == 1:
-                    actual_mtbf_value = float(actual_mtbf_value) * float(findUnit[0].average_speed)
+                print(f"actual_MTBSAF_value = {actual_mtbf_value}")
+                if actual_mtbf_value != 'null':
+                    if findUnit[0].chk_average_speed == 1:
+                        actual_mtbf_value = float(actual_mtbf_value) * float(findUnit[0].average_speed)
 
                 # if week_end_date1 < Hightest_date_of_failure or failure_count != 0 :
                     

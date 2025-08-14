@@ -29,6 +29,7 @@
                 </div>
             </div>
 
+
             <div class="row ">
                 <div class="col-lg-12 mb-3">
     
@@ -180,18 +181,30 @@
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="service_delay">*Service delay (mins):</label>
-                        <input type="number" class="form-control" id="service_delay" required="required" name="service_delay" value="{{data.service_delay}}">
+                        <input type="number" class="form-control" id="service_delay" required="required" name="service_delay" value="{{data.service_delay}}" onchange="setServiceAffectingFailure();">
                         <div class="invalid-feedback">
                          Please enter Service delay.
                         </div>
                     </div>
                 </div>
 
-           
+
+               
             </div>
 
             <div class="row mb-4">
-                
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="service_affecting_failure">*Service Affecting Failure:</label>
+                        <input type="text" class="form-control" id="service_affecting_failure" required="required" name="service_affecting_failure" value="{{data.service_affecting_failure}}" readonly>
+                        <div class="invalid-feedback">
+                         Please enter Service Affecting Failure.
+                        </div>
+                    </div>
+                </div>
+
+
                 
                 <div class="col-md-4">
                     <div class="form-group">
@@ -248,6 +261,13 @@
                     </div>
                 </div>
 
+
+           
+            </div>
+
+            <div class="row mb-4">
+
+
                  <div class="col-md-4">
                     <div class="form-group">
                         <label for="hazard_id">Hazard id:</label>
@@ -257,11 +277,6 @@
                         </div>
                     </div>
                 </div>
-
-           
-            </div>
-
-            <div class="row mb-4">
                
                 
                 
@@ -285,7 +300,13 @@
                     </div>
                 </div>
                 
-                <div class="col-md-4">
+              
+           
+            </div>
+
+            <div class="row mb-4">
+
+                  <div class="col-md-4">
                     <div class="form-group">
                         <label for="cm_start_time">*Cm start time:</label>
                         <input type="time" class="form-control" required="required" id="cm_start_time" name="cm_start_time" value="{{data.cm_start_time|date:"H:i:s"}}">
@@ -295,10 +316,6 @@
                     </div>
                 </div>
 
-           
-            </div>
-
-            <div class="row mb-4">
                 
                 
                 <div class="col-md-4">
@@ -321,7 +338,17 @@
                     </div>
                 </div>
                 
-                
+               
+
+           
+            </div>
+
+            
+
+            <div class="row mb-4">
+
+
+                 
                 <div class="col-md-4">
                     <div class="form-group">
                         <label for="defect">Defect:</label>
@@ -344,12 +371,7 @@
                     </div>
                 </div>
 
-           
-            </div>
 
-            
-
-            <div class="row mb-4">
                <div class="col-md-4">
                     <div class="form-group">
                         <label for="immediate_investigation">*Immediate investigation:</label>
@@ -366,6 +388,16 @@
                         <textarea class="form-control" required="required" id="cm_description" name="cm_description">{{data.cm_description}}</textarea>
                          <div class="invalid-feedback">
                          Please enter Cm description.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label for="relevant_failure">Relevant Failure (safety impact):</label>
+                        <textarea class="form-control" id="relevant_failure" name="relevant_failure">{{data.relevant_failure}}</textarea>
+                         <div class="invalid-feedback">
+                         Please enter Relevant Failure (safety impact).
                         </div>
                     </div>
                 </div>
@@ -450,8 +482,20 @@
             $('#date').val(moment(d1).format('DD/MM/YYYY'))
         }
 
+        setServiceAffectingFailure();
+
 
 });
+
+function setServiceAffectingFailure(){
+    $('#service_affecting_failure').val('No');
+    var service_delay =  $('#service_delay').val();
+    if(service_delay == "") return false;
+
+    var criteria_delay = '{{criteria_delay}}';
+    if( parseFloat(service_delay) > parseFloat(criteria_delay) ) $('#service_affecting_failure').val('Yes');
+
+}
 
    function SetButton(id){
         $('#buttonClick').val(id);
@@ -508,11 +552,15 @@
         var oem_failure_reference= $('#oem_failure_reference').val()
         var id= $('#id').val()
         var buttonClick= $('#buttonClick').val()
+        var relevant_failure= $('#relevant_failure').val()
 
         event_description = event_description.replace(/['"`]/g, '');
         immediate_investigation = immediate_investigation.replace(/['"`]/g, '');
         oem_failure_reference = oem_failure_reference.replace(/['"`]/g, '');
         cm_description = cm_description.replace(/['"`]/g, '');
+        relevant_failure = relevant_failure.replace(/['"`]/g, '');
+
+        var service_affecting_failure= $('#service_affecting_failure').val()
 
 
 
@@ -545,6 +593,8 @@
                 'cm_end_time' : cm_end_time,
                 'oem_failure_reference':oem_failure_reference,
                 'defect':defect,
+                'relevant_failure':relevant_failure,
+                'service_affecting_failure':service_affecting_failure
             },
 
             success: function (response) {
